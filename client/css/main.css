@@ -1,0 +1,6 @@
+/* Events
+----------------------------------*/
+
+.ui-event 		{ display: block; text-indent: -99999px; overflow: hidden; background-repeat: no-repeat; }
+.ui-event-bell  	{ color: #f00; }
+.ui-event-bell:before 	{ content: url(../images/bell/Bell_transparent_red_10.png); }

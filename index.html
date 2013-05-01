@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>jQueryUI Eventdatepicker Demo</title>
+		<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+		<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+		<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
+ 		<script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+  		<script src="client/js/jquery.ui.eventdatepicker.js"></script>
+  		<link rel="stylesheet" type="text/css" href="client/css/main.css">
+
+
+		<script type='text/javascript'>
+			$(window).load(function(){
+//				alert('Hello World!');
+
+				$("#originaldatepicker").datepicker({
+								dateFormat: 'dd-M-yy',
+								dayNamesMin: $.datepicker._defaults.dayNames
+				});
+				$("#eventdatepicker").datepicker({
+					eventsList: {
+//							 	DataSource: {Source: "DataBase", id: "<?php echo $diaries->DiaryId ?>"}
+
+							 	Data:       [
+												{EventDate: "1 May 2013",   	EventDesc: "May Day@First day of May"},
+												{EventDate: "13 May 2013",  	EventDesc: "Dennis's Birthday@Dennis's Birthday"},
+												{EventDate: "18 June 2013", 	EventDesc: "football match@The match will take place on the planet krypton"},
+												{EventDate: "23 June 2013", 	EventDesc: "Some Event@Some Place"},
+												{EventDate: "15 October 2013", 	EventDesc: "Tito's @Tito's Birthday"}
+									     	]
+								}
+
+				});
+			});
+		</script>
+		<style>
+			#container { margin: 0 20%; text-align: center; }
+			#datetable table, #datetable tr, #datetable td { border: 1px double #ccc; }
+			#originaldatepicker .ui-datepicker {
+
+					margin: 0 auto;
+					width: 98%;
+					padding-bottom: 2%;
+			}
+
+		</style>
+	</head>
+
+
+
+	<body>
+
+		<div id="container">
+			<table id="datetable">
+				<tr>
+					<th>Original Datepicker</th>
+					<th>Event Datepicker</th>
+				</tr>
+				<tr>
+					<td><div id="originaldatepicker"></div></td>
+					<td><div id="eventdatepicker"></div></td>
+				</tr>
+
+			</table>
+		</div>
+
+	</body>
+</html>
