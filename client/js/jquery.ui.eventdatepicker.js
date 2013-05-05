@@ -1546,8 +1546,6 @@ $.extend(Datepicker.prototype, {
 		var buttonPanel = (showButtonPanel) ? '<div class="ui-datepicker-buttonpane ui-widget-content">' + (isRTL ? controls : '') +
 			(this._isInRange(inst, gotoDate) ? '<button type="button" class="ui-datepicker-current ui-state-default ui-priority-secondary ui-corner-all" data-handler="today" data-event="click"' +
 			'>' + currentText + '</button>' : '') + (isRTL ? '' : controls) + '</div>' : '';
-		var eventDialog = '<div id="eventDialog" style="display:none;"></div>';
-		var contextMenu = '';
 		var firstDay = parseInt(this._get(inst, 'firstDay'),10);
 		firstDay = (isNaN(firstDay) ? 0 : firstDay);
 		var showWeek = this._get(inst, 'showWeek');
@@ -1562,17 +1560,21 @@ $.extend(Datepicker.prototype, {
 		var calculateWeek = this._get(inst, 'calculateWeek') || this.iso8601Week;
 		var defaultDate = this._getDefaultDate(inst);
 		var html = '';
-		var eventsList = this._get(inst, 'eventsList');
-		var eventText  = '';
+/*Event datepicker*/
+		var eventsList  = this._get(inst, 'eventsList');
+		var eventText   = '';
+		var eventDialog = '<div id="eventDialog" style="display:none;"></div>';
+//		var contextMenu = '<div class="context-menu-one box menu-1"><strong>right click me</strong></div>';
 
 		var findEvent = function(matchDate) {
 			eventText = '';
-			var returnValue 	   = false;
-			var matchDateFormatted = matchDate.getDate().toString() + ' ' + monthNames[matchDate.getMonth().toString()] + ' ' + matchDate.getFullYear().toString();
+			var returnValue 	    = false;
+			var matchDateFormatted  = matchDate.getDate().toString() + ' ' + monthNames[matchDate.getMonth().toString()] + ' ' + matchDate.getFullYear().toString();
+			var annualDateFormatted = matchDate.getDate().toString() + ' ' + monthNames[matchDate.getMonth().toString()];
 			if(eventsList.Data != undefined && eventsList.Data.length > 0)
 			{
 				for (var i = 0; i < eventsList.Data.length; i++) {
-					if (eventsList.Data[i].EventDate == matchDateFormatted) {
+					if (eventsList.Data[i].EventDate == matchDateFormatted || (eventsList.Data[i].IsAnnual == 1 && eventsList.Data[i].EventDate.slice(0,-5) == annualDateFormatted) ) {
 						eventText  = eventsList.Data[i].EventDesc;
 						returnValue = true;
 						break;
@@ -1592,7 +1594,7 @@ $.extend(Datepicker.prototype, {
 				// Set completion function for the request above
 				jqxhr.done(function(data, textStatus, jqXHR) { eventsList.Data = data;
 					for (var i = 0; i < eventsList.Data.length; i++) {
-						if (eventsList.Data[i].EventDate == matchDateFormatted) {
+						if (eventsList.Data[i].EventDate == matchDateFormatted || (eventsList.Data[i].IsAnnual == 1 && eventsList.Data[i].EventDate.slice(0,-5) == annualDateFormatted) ) {
 							eventText  = eventsList.Data[i].EventDesc;
 							returnValue = true;
 							break;
@@ -1614,6 +1616,7 @@ $.extend(Datepicker.prototype, {
 				var cornerClass = ' ui-corner-all';
 				var calender = '';
 				calender += eventDialog;
+//				calender += contextMenu;
 
 				if (isMultiMonth) {
 					calender += '<div class="ui-datepicker-group';
