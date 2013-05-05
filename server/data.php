@@ -52,7 +52,7 @@ class EventDatabaseData extends EventData
 	{
 		try
 		{
-			$query = $this->pdo->prepare("SELECT DATE_FORMAT(EventDate,'%e %M %Y') EventDate, EventDesc FROM Event WHERE DiaryId=".$_POST['id']);
+			$query = $this->pdo->prepare("SELECT DATE_FORMAT(EventDate,'%e %M %Y') EventDate, EventDesc, IsAnnual FROM event WHERE DiaryId=".$_POST['id']);
 			$query->execute();
 			$rows  = $query->fetchAll(PDO::FETCH_ASSOC);
 			echo json_encode($rows);
