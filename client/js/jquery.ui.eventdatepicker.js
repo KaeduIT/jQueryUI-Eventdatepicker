@@ -18,6 +18,7 @@ $.extend($.ui, { datepicker: { version: "1.9.2" } });
 var PROP_NAME = 'datepicker';
 var dpuuid = new Date().getTime();
 var instActive;
+var EventDatepicker = {};
 
 /* Date picker manager.
    Use the singleton instance of this class, $.datepicker, to interact with the date picker.
@@ -527,7 +528,6 @@ $.extend(Datepicker.prototype, {
 		var handled = true;
 		var isRTL = inst.dpDiv.is('.ui-datepicker-rtl');
 		inst._keyEvent = true;
-//alert(event.keyCode);
 		if ($.datepicker._datepickerShowing)
 			switch (event.keyCode) {
 				case 9: $.datepicker._hideDatepicker();
@@ -902,50 +902,146 @@ $.extend(Datepicker.prototype, {
 			return;
 		}
 		var inst = this._getInst(target[0]);
-//		var monthNames = this._get(inst, 'monthNames');
-//		var eventsList = this._get(inst, 'eventsList');
 		inst.selectedDay = inst.currentDay = $('a', td).html();
 		inst.selectedMonth = inst.currentMonth = month;
 		inst.selectedYear = inst.currentYear = year;
-
-//		var existingEvent = false;
-//		var formattedDate = inst.selectedDay + ' ' + monthNames[month] + ' ' + year.toString();
-//		for (var i = 0; i < eventsList.length; i++) {
-//			if (eventsList[i].Date == formattedDate) {
-//				existingEvent = true;
-////				eventText  = eventsList[i].Description;
-//				$("#eventDialog").dialog({
-//					dialogClass: "no-close",
-//					closeOnEscape: false,
-//					draggable:true,
-//					modal: true,
-//					height:'auto',
-//					width:'auto',
-//					resizable: true,
-//					title:'Update existing event',
-//					position:'center'
-//				});
-//				break;
-//			}
-//		}
-//
-//		if (!existingEvent)
-//		{
-//			$("#eventDialog").dialog({
-//				dialogClass: "no-close",
-//				closeOnEscape: false,
-//				draggable:true,
-//				modal: true,
-//				height:'auto',
-//				width:'auto',
-//				resizable: true,
-//				title:'Add new event',
-//				position:'center'
-//			});
-//		}
-
 		this._selectDate(id, this._formatDate(inst,
 			inst.currentDay, inst.currentMonth, inst.currentYear));
+	},
+
+	/* Action triggered by contextMenu. */
+	_selectContextMenu: function(id, day, month, year, crtl) {
+		var target = $(id);
+		if ($(crtl).hasClass(this._unselectableClass) || this._isDisabledDatepicker(target[0])) { return; }
+
+		var inst 			= this._getInst(target[0]);
+		inst.eventDay 		= inst.currentDay 	= day;
+		inst.eventMonth 	= inst.currentMonth = month;
+		inst.eventYear 		= inst.currentYear 	= year;
+		var monthNames 		= this._get(inst, 'monthNames');
+		var eventPos		= -1;
+		var existingEvent	= false;
+
+		if (EventDatepicker.eventsList.DataSource == undefined)	{
+			alert('Set datasource to change events!');
+			return;
+		}
+
+		EventDatepicker.eventsList.DataSource.FormData = '';
+		$("#eventDialog input[type='text'], input[type='date']").css('width','300px');
+
+		EventDatepicker.matchDateFormatted   = day.toString() + ' ' + monthNames[month.toString()] + ' ' + year.toString();
+		EventDatepicker.annualDateFormatted  = day.toString() + ' ' + monthNames[month.toString()];
+
+		if(EventDatepicker.eventsList.Data != undefined && EventDatepicker.eventsList.Data.length > 0)
+		{
+			for (var i = 0; i < EventDatepicker.eventsList.Data.length; i++) {
+				if (EventDatepicker.eventsList.Data[i].EventDate == EventDatepicker.matchDateFormatted || (EventDatepicker.eventsList.Data[i].IsAnnual == 1 && EventDatepicker.eventsList.Data[i].EventDate.slice(0,-5) == EventDatepicker.annualDateFormatted) ) {
+
+					$('#DiaryId').attr('value',EventDatepicker.eventsList.DataSource.id);
+					$('#EventId').attr('value',EventDatepicker.eventsList.Data[i].EventId);
+					$('#EventName').attr('value',EventDatepicker.eventsList.Data[i].EventName);
+					$('#EventDesc').attr('value',EventDatepicker.eventsList.Data[i].EventDesc);
+					var evntDate = year.toString() + '-' + ("0" + (month + 1)).slice(-2) + '-' +  ("0" + day).slice(-2);
+					$('#EventDate').attr('value',evntDate);
+					EventDatepicker.eventsList.Data[i].IsAnnual ? $('#IsAnnual').attr('checked','checked') : '';
+					$('#DeleteEventSpan').css('display','block');
+					$('#DeleteEvent').removeAttr('checked');
+					eventPos = i;
+					existingEvent = true;
+					break;
+				}
+			}
+		}
+
+		if(!existingEvent){
+				$('#DiaryId').attr('value',EventDatepicker.eventsList.DataSource.id);
+				$('#EventId').attr('value','');
+				$('#EventName').attr('value','');
+				$('#EventDesc').attr('value','');
+				var evntDate = year.toString() + '-' + ("0" + (month + 1)).slice(-2) + '-' +  ("0" + day).slice(-2);
+				$('#EventDate').attr('value',evntDate);
+				$('#IsAnnual').removeAttr('checked');
+				$('#DeleteEventSpan').css('display','none');
+				$('#DeleteEvent').removeAttr('checked');
+				eventPos = EventDatepicker.eventsList.Data.length;
+				existingEvent = false;
+		}
+
+// Validation
+	   $("#eventDialogForm").validate({
+			rules:   {
+						"EventName":{ required: true, minlength: 2, maxlength: 100 }
+					 },
+		   messages: {
+						"EventName": { required: "Please, enter a name"}
+					 }
+
+	   });
+
+		$("#eventDialog").dialog({
+			draggable:true,
+			modal: true,
+			height:'auto',
+			width:'auto',
+			resizable: true,
+			title:'Event',
+			position:'center',
+			buttons: {
+				'Submit': function() {
+					var eventDialog = $(this);
+					if (EventDatepicker.eventsList.DataSource == undefined) {
+						alert('Set datasource to change events!');
+					}
+					else {
+						if ($('#DeleteEvent').attr('checked') != undefined)
+							EventDatepicker.eventsList.DataSource.CRUD = "delete";
+						else if ( $('#EventId').attr('value') != undefined && $('#EventId').attr('value') != '' )
+							EventDatepicker.eventsList.DataSource.CRUD = "update";
+						else
+							EventDatepicker.eventsList.DataSource.CRUD = "create";
+
+						if ($('#IsAnnual').attr('checked') == undefined)
+							$('#IsAnnual').attr('value', 0);
+						else
+							$('#IsAnnual').attr('value', 1);
+
+						if ($('#DeleteEvent').attr('checked') == undefined)
+							$('#DeleteEvent').attr('value', 0);
+						else
+							$('#DeleteEvent').attr('value', 1);
+
+						EventDatepicker.eventsList.DataSource.FormData = { Data: $("#eventDialogForm").serialize(), DiaryId: $('#DiaryId').attr('value'), EventId: $('#EventId').attr('value'), EventName: $('#EventName').attr('value'), EventDesc: $('#EventDesc').attr('value'), EventDate: $('#EventDate').attr('value'), IsAnnual: $('#IsAnnual').attr('value'), DeleteEvent: $('#DeleteEvent').attr('value') };
+
+						EventDatepicker.eventsList.Data[eventPos].DiaryId 	= $('#DiaryId').attr('value');
+						EventDatepicker.eventsList.Data[eventPos].EventId 	= $('#EventId').attr('value');
+						EventDatepicker.eventsList.Data[eventPos].EventName = $('#EventName').attr('value');
+						EventDatepicker.eventsList.Data[eventPos].EventDesc = $('#EventDesc').attr('value');
+						var dtMediumDate = new Date($('#EventDate').attr('value') );
+						var mediumDate   = dtMediumDate.getDate().toString() + ' ' + monthNames[dtMediumDate.getMonth().toString()] + ' ' + dtMediumDate.getFullYear().toString();
+						EventDatepicker.eventsList.Data[eventPos].EventDate = mediumDate;
+						EventDatepicker.eventsList.Data[eventPos].IsAnnual 	= $('#IsAnnual').attr('value');
+
+						var jqxhr = $.ajax({
+											async: 		true,
+											type: 		"POST",
+											url: 		"/eventdatepicker/server/data.php",
+											processData: true,
+//											dataType: 	"json",
+											data: 		EventDatepicker.eventsList.DataSource
+											});
+						jqxhr.done(function(data, textStatus, jqXHR) {
+								// console.log(textStatus); console.log(data);
+								window['DP_jQuery_' + dpuuid].datepicker._updateHTML(inst, day, month, year);
+								eventDialog.dialog('close');
+						});
+					}
+				}
+			}
+		});
+
+return;
+
 	},
 
 	/* Erase the input field and hide the date picker. */
@@ -1478,6 +1574,10 @@ $.extend(Datepicker.prototype, {
 				selectYear: function () {
 					window['DP_jQuery_' + dpuuid].datepicker._selectMonthYear(id, this, 'Y');
 					return false;
+				},
+				selectContextMenu: function () {
+					window['DP_jQuery_' + dpuuid].datepicker._selectContextMenu(id, +this.getAttribute('data-date'), +this.getAttribute('data-month'), +this.getAttribute('data-year'), this);
+					return false;
 				}
 			};
 			$(this).bind(this.getAttribute('data-event'), handler[this.getAttribute('data-handler')]);
@@ -1561,51 +1661,54 @@ $.extend(Datepicker.prototype, {
 		var defaultDate = this._getDefaultDate(inst);
 		var html = '';
 /*Event datepicker*/
-		var eventsList  = this._get(inst, 'eventsList');
-		var eventText   = '';
-		var eventDialog = '<div id="eventDialog" style="display:none;"></div>';
-//		var contextMenu = '<div class="context-menu-one box menu-1"><strong>right click me</strong></div>';
+//		var EventDatepicker 		= {};
+		EventDatepicker.eventText   = '';
+		EventDatepicker.contextMenu = '';
+		EventDatepicker.eventsList  = this._get(inst, 'eventsList');
+//		EventDatepicker.eventDialog = '<div id="eventDialogForm" style="display:none;"><form method="post" action="" id="eventDialogForm"><fieldset><label for="event-name">EventName</label><input type="text" name="event-name" id="event-name" /><label for="event-desc">EventDesc</label><input type="text" name="event-desc" id="event-desc" value="" /><label for="EventDate">EventDate</label><input type="date" name="EventDate" id="EventDate" value="2013-05-15" /><label for="IsAnnual">IsAnnual</label><input type="checkbox" name="IsAnnual" id="IsAnnual" value="" /></fieldset></form></div>';
+		EventDatepicker.eventDialog = '<div id="eventDialog" style="display:none;"><form method="post" action="" name="eventDialogForm" id="eventDialogForm"><fieldset><input type="hidden" name="DiaryId" id="DiaryId" /><input type="hidden" name="EventId" id="EventId" /><label for="EventName">EventName</label><input type="text" name="EventName" id="EventName" /><label for="EventDesc">EventDesc</label><input type="text" name="EventDesc" id="EventDesc" value="" /><label for="EventDate">EventDate</label><input type="date" name="EventDate" id="EventDate" value="" /><br/><span name="IsAnnualSpan" id="IsAnnualSpan">Annual Event &#xa0; <input type="checkbox" name="IsAnnual" id="IsAnnual" /></span><br/><span name="DeleteEventSpan" id="DeleteEventSpan"><input type="checkbox" name="DeleteEvent" id="DeleteEvent" /> &#xa0; Delete this event</span></fieldset></form></div>';
+		EventDatepicker.isSetContextMenu = false;
 
-		var findEvent = function(matchDate) {
-			eventText = '';
-			var returnValue 	    = false;
-			var matchDateFormatted  = matchDate.getDate().toString() + ' ' + monthNames[matchDate.getMonth().toString()] + ' ' + matchDate.getFullYear().toString();
-			var annualDateFormatted = matchDate.getDate().toString() + ' ' + monthNames[matchDate.getMonth().toString()];
-			if(eventsList.Data != undefined && eventsList.Data.length > 0)
+		EventDatepicker.findEvent = function(matchDate) {
+			EventDatepicker.eventText 			= '';
+			EventDatepicker.returnValue 	    = false;
+			EventDatepicker.matchDateFormatted  = matchDate.getDate().toString() + ' ' + monthNames[matchDate.getMonth().toString()] + ' ' + matchDate.getFullYear().toString();
+			EventDatepicker.annualDateFormatted = matchDate.getDate().toString() + ' ' + monthNames[matchDate.getMonth().toString()];
+			if(EventDatepicker.eventsList.Data != undefined && EventDatepicker.eventsList.Data.length > 0)
 			{
-				for (var i = 0; i < eventsList.Data.length; i++) {
-					if (eventsList.Data[i].EventDate == matchDateFormatted || (eventsList.Data[i].IsAnnual == 1 && eventsList.Data[i].EventDate.slice(0,-5) == annualDateFormatted) ) {
-						eventText  = eventsList.Data[i].EventDesc;
-						returnValue = true;
+				for (var i = 0; i < EventDatepicker.eventsList.Data.length; i++) {
+					if (EventDatepicker.eventsList.Data[i].EventDate == EventDatepicker.matchDateFormatted || (EventDatepicker.eventsList.Data[i].IsAnnual == 1 && EventDatepicker.eventsList.Data[i].EventDate.slice(0,-5) == EventDatepicker.annualDateFormatted) ) {
+						EventDatepicker.eventText   = EventDatepicker.eventsList.Data[i].EventDesc;
+						EventDatepicker.returnValue = true;
 						break;
 					}
 				}
-				return returnValue;
-			}else
+				return EventDatepicker.returnValue;
+			}else if (EventDatepicker.eventsList.DataSource != undefined)
 			{
+				EventDatepicker.eventsList.DataSource.CRUD = "read";
 				var jqxhr = $.ajax({
 //									cache: 		true,
 									async: 		false,
 									type: 		"POST",
   									url: 		"/eventdatepicker/server/data.php",
 									dataType: 	"json",
-  									data: 		eventsList.DataSource
+  									data: 		EventDatepicker.eventsList.DataSource
   					  			  });
 				// Set completion function for the request above
-				jqxhr.done(function(data, textStatus, jqXHR) { eventsList.Data = data;
-					for (var i = 0; i < eventsList.Data.length; i++) {
-						if (eventsList.Data[i].EventDate == matchDateFormatted || (eventsList.Data[i].IsAnnual == 1 && eventsList.Data[i].EventDate.slice(0,-5) == annualDateFormatted) ) {
-							eventText  = eventsList.Data[i].EventDesc;
-							returnValue = true;
+				jqxhr.done(function(data, textStatus, jqXHR) { EventDatepicker.eventsList.Data = data;
+					for (var i = 0; i < EventDatepicker.eventsList.Data.length; i++) {
+						if (EventDatepicker.eventsList.Data[i].EventDate == EventDatepicker.matchDateFormatted || (EventDatepicker.eventsList.Data[i].IsAnnual == 1 && EventDatepicker.eventsList.Data[i].EventDate.slice(0,-5) == EventDatepicker.annualDateFormatted) ) {
+							EventDatepicker.eventText   = EventDatepicker.eventsList.Data[i].EventDesc;
+							//alert(EventDatepicker.eventsList.Data[i].EventName);
+							EventDatepicker.returnValue = true;
 							break;
 						}
 					}
 				});
-				// Set another completion function for the request
-				//jqxhr.always(function() { alert("second complete"); });
-				return returnValue;
+				return EventDatepicker.returnValue;
 			}
-			return returnValue;
+			return EventDatepicker.returnValue;
 		};
 
 		for (var row = 0; row < numMonths[0]; row++) {
@@ -1615,8 +1718,7 @@ $.extend(Datepicker.prototype, {
 				var selectedDate = this._daylightSavingAdjust(new Date(drawYear, drawMonth, inst.selectedDay));
 				var cornerClass = ' ui-corner-all';
 				var calender = '';
-				calender += eventDialog;
-//				calender += contextMenu;
+				calender += EventDatepicker.eventDialog;
 
 				if (isMultiMonth) {
 					calender += '<div class="ui-datepicker-group';
@@ -1663,6 +1765,7 @@ $.extend(Datepicker.prototype, {
 						var otherMonth = (printDate.getMonth() != drawMonth);
 						var unselectable = (otherMonth && !selectOtherMonths) || !daySettings[0] ||
 							(minDate && printDate < minDate) || (maxDate && printDate > maxDate);
+
 						tbody += '<td class="' +
 							((dow + firstDay + 6) % 7 >= 5 ? ' ui-datepicker-week-end' : '') + // highlight weekends
 							(otherMonth ? ' ui-datepicker-other-month' : '') + // highlight days from other months
@@ -1682,9 +1785,15 @@ $.extend(Datepicker.prototype, {
 							(printDate.getTime() == today.getTime() ? ' ui-state-highlight' : '') +
 							(printDate.getTime() == currentDate.getTime() ? ' ui-state-active' : '') + // highlight selected day
 							(otherMonth ? ' ui-priority-secondary' : '') + // distinguish dates from other months
-							(findEvent(printDate) ? ' ui-event ui-event-bell" title="' + eventText + '"' : '') +
+							(EventDatepicker.findEvent(printDate) ? ' ui-event ui-event-bell" title="' + EventDatepicker.eventText + '"' : '"') +
 							' href="#">' +
 							printDate.getDate() + '</a>')) + '</td>'; // display selectable date
+
+							if (!EventDatepicker.isSetContextMenu && !otherMonth)
+							{
+								EventDatepicker.contextMenu 	 = '<ul id="menu"><li><a id="menuAnchor" href="#" data-handler="selectContextMenu" data-event="click" data-month="' + printDate.getMonth() + '" data-year="' + printDate.getFullYear() + '">Event</a></li></ul>';
+								EventDatepicker.isSetContextMenu = true;
+							}
 
 						printDate.setDate(printDate.getDate() + 1);
 						printDate = this._daylightSavingAdjust(printDate);
@@ -1698,6 +1807,7 @@ $.extend(Datepicker.prototype, {
 				}
 				calender += '</tbody></table>' + (isMultiMonth ? '</div>' +
 							((numMonths[0] > 0 && col == numMonths[1]-1) ? '<div class="ui-datepicker-row-break"></div>' : '') : '');
+				calender += EventDatepicker.contextMenu;
 				group += calender;
 			}
 			html += group;
@@ -1705,7 +1815,68 @@ $.extend(Datepicker.prototype, {
 		html += buttonPanel + ($.ui.ie6 && !inst.inline ?
 			'<iframe src="javascript:false;" class="ui-datepicker-cover" frameborder="0"></iframe>' : '');
 		inst._keyEvent = false;
+
+		setTimeout(function(){
+			// contextmenu
+			$('#menu').menu();
+			$('.ui-state-default').bind('contextmenu', function(e){
+				e.preventDefault();
+				$('#menu').css('display','block');
+				$('#menu').position({collision: "none",my: "left top",of: event});
+				$('#menuAnchor').attr('data-date',$(e.target).html());
+				$('#menuAnchor').hover(function(event) { return true; }, function(event) { $('#menu').hide(); });
+				$('#menu').show(0, function() {
+						// Animation complete.
+						setTimeout(function(){
+							var className = $('#menu li a').attr('class');
+							//if (/yes/i.test(str))
+							if(className.indexOf('ui-state-focus') < 0){ $('#menu').hide(); }
+						}, 1000);
+				});
+				return false;
+			});
+			$('#menu').on('contextmenu', function (event) {  $('#menu').hide(); });
+
+//			$(document).click(function (e) { $('#menu').hide(); });
+
+		}, 0);
+
 		return html;
+	},
+
+
+	/* Update the HTML for the current state of the date picker. */
+	_updateHTML: function(inst, day, month, year) {
+		var eventDay = new Date(EventDatepicker.eventsList.DataSource.FormData.EventDate).getDate();
+
+		// delete the event or change it to a different day
+		if (EventDatepicker.eventsList.DataSource.FormData.DeleteEvent == 1 || day != eventDay) {
+			$(".ui-datepicker-calendar tbody tr td a:contains("+day+")").removeAttr('title');
+			$(".ui-datepicker-calendar tbody tr td a:contains("+day+")").removeClass('ui-event');
+			$(".ui-datepicker-calendar tbody tr td a:contains("+day+")").removeClass('ui-event-bell');
+		}
+
+		// do not delete, update one of the event properties
+		if (EventDatepicker.eventsList.DataSource.FormData.DeleteEvent == 0)
+		{
+			if (day != eventDay) {
+				// move to a different day
+				// console.log('update event day');
+				$(".ui-datepicker-calendar tbody tr td a:contains("+eventDay+")").attr('title',EventDatepicker.eventsList.DataSource.FormData.EventDesc);
+				$(".ui-datepicker-calendar tbody tr td a:contains("+eventDay+")").addClass('ui-event');
+				$(".ui-datepicker-calendar tbody tr td a:contains("+eventDay+")").addClass('ui-event-bell');
+			} else {
+				// leave on this day, update other properties
+				// console.log('update other properties');
+				//$(".ui-datepicker-calendar tbody tr td span:contains("+day+")").attr('title',EventDatepicker.eventsList.DataSource.FormData.EventDesc);
+				//$(".ui-datepicker-calendar tbody tr td span:contains("+day+")").addClass('ui-event');
+				//$(".ui-datepicker-calendar tbody tr td span:contains("+day+")").addClass('ui-event-bell');
+				$(".ui-datepicker-calendar tbody tr td a:contains("+day+")").attr('title',EventDatepicker.eventsList.DataSource.FormData.EventDesc);
+				$(".ui-datepicker-calendar tbody tr td a:contains("+day+")").addClass('ui-event');
+				$(".ui-datepicker-calendar tbody tr td a:contains("+day+")").addClass('ui-event-bell');
+			}
+
+		}
 	},
 
 	/* Generate the month and year header. */
