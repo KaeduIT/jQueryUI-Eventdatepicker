@@ -923,7 +923,7 @@ $.extend(Datepicker.prototype, {
 		var existingEvent	= false;
 
 		if (EventDatepicker.eventsList.DataSource == undefined)	{
-			alert('Set datasource to change events!');
+			alert('Set the datasource to change events!');
 			return;
 		}
 

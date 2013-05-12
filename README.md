@@ -7,8 +7,9 @@ The jQueryUI Eventdatepicker is an extension of the jQueryUI Datepicker.
 This widget allows users to add events to the datepicker. 
 Events can be edited if a datasource is specified.
 
-## Demo
-[Demo Eventdatepicker](http://kaeduit.github.io/jQueryUI-Eventdatepicker)
+## Demos
+* [Demo Eventdatepicker static data](http://kaeduit.github.io/jQueryUI-Eventdatepicker).
+* [Demo Eventdatepicker dynamic data](http://moiraikaedu.my.phpcloud.com/).
 
 ## Download
 * [Download the latest zip](https://github.com/KaeduIT/jQueryUI-Eventdatepicker/zipball/master).
