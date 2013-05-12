@@ -12,7 +12,9 @@
 	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
 	<script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
 	<script src="client/js/jquery.ui.eventdatepicker.js"></script>
-	<link rel="stylesheet" type="text/css" href="client/css/main.css">
+	<link rel="stylesheet" type="text/css" href="client/css/jquery.ui.eventdatepicker.css">
+	<script src="client/js/jquery.ui.position.js"></script>
+	<script src="client/js/jquery.validate.js"></script>
 
 		<script type='text/javascript'>
 			$(window).load(function(){
@@ -23,35 +25,35 @@
 //							 	DataSource: {Source: "DataBase", id: "<?php echo $UserId ?>"}
 
 							 	Data:       [
-							 					{EventDate: "9 January 2013",   	EventDesc: "Severus Snape's birthday, Potty", IsAnnual: "1"},
-							 					{EventDate: "12 February 2013",   	EventDesc: "Franks cocktail party@Frankfurt", IsAnnual: "0"},
-							 					{EventDate: "29 March 2013",   		EventDesc: "Movie screening@theatre", IsAnnual: "0"},
-							 					{EventDate: "19 April 2013",   		EventDesc: "outdoor concert", IsAnnual: "0"},
-												{EventDate: "1 May 2013",   		EventDesc: "May Day@First day of May", IsAnnual: "0"},
-												{EventDate: "13 May 2013",  		EventDesc: "Dennis's Birthday@Dennis's Birthday", IsAnnual: "1"},
-												{EventDate: "18 June 2013", 		EventDesc: "football match@The match will take place on the planet krypton", IsAnnual: "0"},
-												{EventDate: "23 June 2013", 		EventDesc: "Some Event@Some Place", IsAnnual: "0"},
-												{EventDate: "7 July 2013",   		EventDesc: "Dr Watson's birthday, Elementary", IsAnnual: "1"},
-												{EventDate: "13 July 2013",   		EventDesc: "Jean-Luc Picard's birthday, Party", IsAnnual: "1"},
-												{EventDate: "15 July 2013",   		EventDesc: "Rooster Cogburn's birthday, Grit", IsAnnual: "1"},
-												{EventDate: "31 July 2013",   		EventDesc: "Harry Potters birthday, Potty", IsAnnual: "1"},
-												{EventDate: "5 August 2013",   		EventDesc: "Turtle's birthday, Crew", IsAnnual: "1"},
-												{EventDate: "8 August 2013",   		EventDesc: "Ginny Weasley's birthday, Potty", IsAnnual: "1"},
-												{EventDate: "17	August 2013",   	EventDesc: "Lois Lane's birthday, Super", IsAnnual: "1"},
-												{EventDate: "19	August 2013",   	EventDesc: "Mr Snuffleupagus's birthday, Street Party", IsAnnual: "1"},
-												{EventDate: "15 September 2013",   	EventDesc: "Mr Burns's birthday, Homer", IsAnnual: "1"},
-												{EventDate: "19 September 2013",   	EventDesc: "Hermione Granger's birthday, Potty", IsAnnual: "1"},
-												{EventDate: "21 September 2013",   	EventDesc: "Dogie Howser's birthday, Party", IsAnnual: "1"},
-												{EventDate: "7 October 2013",   	EventDesc: "Pannapitta's birthday, Party", IsAnnual: "1"},
-												{EventDate: "9 October 2013",   	EventDesc: "The Count's birthday, Street Party", IsAnnual: "1"},
-												{EventDate: "13	October 2013",   	EventDesc: "Fox Mulder's birthday, Files", IsAnnual: "1"},
-												{EventDate: "15 October 2013", 		EventDesc: "Tito's @Tito's Birthday", IsAnnual: "1"},
-												{EventDate: "5 November 2013",   	EventDesc: "Jack Arnold's birthday, The Wonder Years", IsAnnual: "1"},
-												{EventDate: "9 November 2013",   	EventDesc: "Bridget Jones's birthday, Diary", IsAnnual: "1"},
-												{EventDate: "2 November 2013",   	EventDesc: "Sherman Klump's birthday, Nutty", IsAnnual: "1"},
-												{EventDate: "3 December 2013",   	EventDesc: "Jack Shephard's birthday, Lost", IsAnnual: "1"},
-												{EventDate: "5 December 2013",   	EventDesc: "Malcolm's birthday, In The Middle", IsAnnual: "1"},
-												{EventDate: "7 December 2013",   	EventDesc: "Vito Corleone's birthday, The Godfather", IsAnnual: "1"}
+							 					{EventDate: "9 January 2013",   	EventName: "Severus Snape",		EventDesc: "Severus Snape's birthday, Potty", 									IsAnnual: "1"},
+							 					{EventDate: "12 February 2013",   	EventName: "Franks",			EventDesc: "Franks cocktail party@Frankfurt", 									IsAnnual: "0"},
+							 					{EventDate: "29 March 2013",   		EventName: "Movie screening",	EventDesc: "Movie screening@theatre", 											IsAnnual: "0"},
+							 					{EventDate: "19 April 2013",   		EventName: "outdoor concert",	EventDesc: "outdoor concert", 													IsAnnual: "0"},
+												{EventDate: "1 May 2013",   		EventName: "May Day",			EventDesc: "May Day@First day of May", 											IsAnnual: "0"},
+												{EventDate: "13 May 2013",  		EventName: "Dennis",			EventDesc: "Dennis's Birthday@Dennis's Birthday", 								IsAnnual: "1"},
+												{EventDate: "18 June 2013", 		EventName: "football match",	EventDesc: "football match@The match will take place on the planet krypton", 	IsAnnual: "0"},
+												{EventDate: "23 June 2013", 		EventName: "Some Event",		EventDesc: "Some Event@Some Place", 											IsAnnual: "0"},
+												{EventDate: "7 July 2013",   		EventName: "Dr Watson",			EventDesc: "Dr Watson's birthday, Elementary", 									IsAnnual: "1"},
+												{EventDate: "13 July 2013",   		EventName: "Jean-Luc Picard",	EventDesc: "Jean-Luc Picard's birthday, Party", 								IsAnnual: "1"},
+												{EventDate: "15 July 2013",   		EventName: "Rooster Cogburn",	EventDesc: "Rooster Cogburn's birthday, Grit", 									IsAnnual: "1"},
+												{EventDate: "31 July 2013",   		EventName: "Harry Potters",		EventDesc: "Harry Potters birthday, Potty", 									IsAnnual: "1"},
+												{EventDate: "5 August 2013",   		EventName: "Turtle",			EventDesc: "Turtle's birthday, Crew", 											IsAnnual: "1"},
+												{EventDate: "8 August 2013",   		EventName: "Ginny Weasley",		EventDesc: "Ginny Weasley's birthday, Potty", 									IsAnnual: "1"},
+												{EventDate: "17	August 2013",   	EventName: "Lois Lane",			EventDesc: "Lois Lane's birthday, Super", 										IsAnnual: "1"},
+												{EventDate: "19	August 2013",   	EventName: "Mr Snuffleupagus",	EventDesc: "Mr Snuffleupagus's birthday, Street Party", 						IsAnnual: "1"},
+												{EventDate: "15 September 2013",   	EventName: "Mr Burns",			EventDesc: "Mr Burns's birthday, Homer", 										IsAnnual: "1"},
+												{EventDate: "19 September 2013",   	EventName: "Hermione Granger",	EventDesc: "Hermione Granger's birthday, Potty", 								IsAnnual: "1"},
+												{EventDate: "21 September 2013",   	EventName: "Dogie Howser",		EventDesc: "Dogie Howser's birthday, Party", 									IsAnnual: "1"},
+												{EventDate: "7 October 2013",   	EventName: "Pannapitta",		EventDesc: "Pannapitta's birthday, Party", 										IsAnnual: "1"},
+												{EventDate: "9 October 2013",   	EventName: "The Count",			EventDesc: "The Count's birthday, Street Party", 								IsAnnual: "1"},
+												{EventDate: "13	October 2013",   	EventName: "Fox Mulder",		EventDesc: "Fox Mulder's birthday, Files", 										IsAnnual: "1"},
+												{EventDate: "15 October 2013", 		EventName: "Tito",				EventDesc: "Tito's @Tito's Birthday", 											IsAnnual: "1"},
+												{EventDate: "5 November 2013",   	EventName: "Jack Arnold",		EventDesc: "Jack Arnold's birthday, The Wonder Years", 							IsAnnual: "1"},
+												{EventDate: "9 November 2013",   	EventName: "Bridget Jones",		EventDesc: "Bridget Jones's birthday, Diary", 									IsAnnual: "1"},
+												{EventDate: "2 November 2013",   	EventName: "Sherman Klump",		EventDesc: "Sherman Klump's birthday, Nutty", 									IsAnnual: "1"},
+												{EventDate: "3 December 2013",   	EventName: "Jack Shephard",		EventDesc: "Jack Shephard's birthday, Lost", 									IsAnnual: "1"},
+												{EventDate: "5 December 2013",   	EventName: "Malcolm",			EventDesc: "Malcolm's birthday, In The Middle", 								IsAnnual: "1"},
+												{EventDate: "7 December 2013",   	EventName: "Vito Corleone",		EventDesc: "Vito Corleone's birthday, The Godfather", 							IsAnnual: "1"}
 									     	]
 								}
 
