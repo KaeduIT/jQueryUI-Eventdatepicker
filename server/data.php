@@ -47,15 +47,6 @@ abstract class EventData
 	abstract protected function readData($DiaryId);
 	abstract protected function updateData($EventId, $EventName, $EventDesc, $EventDate, $IsAnnual);
 	abstract protected function deleteData($EventId);
-//	{
-//		$index = array();
-//		$index[0]["EventDate"] = "1 April 2013";
-//		$index[0]["EventDesc"] = "football match@The match will take place on the planet krypton";
-//		$index[1]["EventDate"] = "12 April 2013";
-//		$index[1]["EventDesc"] = "Some Event@Some Place";
-//		echo json_encode($index);
-//	}
-
 }
 
 class EventDatabaseData extends EventData
@@ -78,10 +69,8 @@ class EventDatabaseData extends EventData
 	{
 		try
 		{
-			$query = $this->pdo->prepare("INSERT INTO event (EventName, EventDesc, EventDate, IsAnnual) VALUES ('".$EventName."', '".$EventDesc."', DATE_FORMAT(".$EventDate.",'%e %M %Y'), ".$IsAnnual.") WHERE DiaryId=".$DiaryId);
+			$query = $this->pdo->prepare("INSERT INTO event (EventName, EventDesc, EventDate, IsAnnual, DiaryId) VALUES ('".$EventName."', '".$EventDesc."', '".$EventDate."', ".$IsAnnual.", ".$DiaryId.");");
 			echo $query->execute();
-			//$rows  = $query->fetchAll(PDO::FETCH_ASSOC);
-			//echo json_encode($rows);
 		}
 		catch (PDOException $e)
 		{
@@ -110,8 +99,6 @@ class EventDatabaseData extends EventData
 		{
 			$query = $this->pdo->prepare("UPDATE event SET EventName='".$EventName."', EventDesc='".$EventDesc."', EventDate='".$EventDate."', IsAnnual=".$IsAnnual." WHERE EventId=".$EventId);
 			echo $query->execute();
-			//$rows  = $query->fetchAll(PDO::FETCH_ASSOC);
-			//echo json_encode($rows);
 		}
 		catch (PDOException $e)
 		{
@@ -129,8 +116,6 @@ class EventDatabaseData extends EventData
 
 			$query = $this->pdo->prepare("DELETE FROM event WHERE EventId=".$EventId);
 			echo $query->execute();
-			//$rows  = $query->fetchAll(PDO::FETCH_ASSOC);
-			//echo json_encode($rows);
 		}
 		catch (PDOException $e)
 		{
