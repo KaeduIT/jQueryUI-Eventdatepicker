@@ -979,14 +979,20 @@ $.extend(Datepicker.prototype, {
 				existingEvent = false;
 		}
 
-// EventDatepicker Validation
+	   // EventDatepicker Validation
 	   $("#eventDialogForm").validate({
 			rules:   {
-						"EventName":{ required: true, minlength: 2, maxlength: 100 }
+						"EventName":{ required: true, minlength: 2, maxlength: 100 },
+						"EventDesc":{ required: true, minlength: 2, maxlength: 255 },
+						"EventDate":{ required: true, minlength: 10, maxlength: 100 }
 					 },
 		   messages: {
-						"EventName": { required: "Please, enter a name"}
-					 }
+						"EventName": { required: "Please enter a name."},
+						"EventDesc": { required: "Please enter a description."},
+						"EventDate": { required: "Please enter a date."}
+					 },
+		   highlight: function(element) { $(element).addClass('error'); },
+		   unhighlight: function(element) { $(element).removeClass('error'); }
 
 	   });
 
@@ -998,58 +1004,75 @@ $.extend(Datepicker.prototype, {
 			resizable: true,
 			title:'Event',
 			position:'center',
+			close: function( event, ui ) { $('#ErrorEventName').css('display','none'); $('#ErrorEventDesc').css('display','none'); $('#ErrorEventDate').css('display','none'); },
 			buttons: {
 				'Submit': function() {
-					var eventDialog = $(this);
-					if (EventDatepicker.eventsList.DataSource != undefined) {
-						if ($('#DeleteEvent').attr('checked') != undefined)
-							EventDatepicker.eventsList.DataSource.CRUD = "delete";
-						else if ( $('#EventId').attr('value') != undefined && $('#EventId').attr('value') != '' )
-							EventDatepicker.eventsList.DataSource.CRUD = "update";
-						else
-							EventDatepicker.eventsList.DataSource.CRUD = "create";
+					if ($("#eventDialogForm").valid()) {
+						var eventDialog = $(this);
+						if (EventDatepicker.eventsList.DataSource != undefined) {
+							if ($('#DeleteEvent').attr('checked') != undefined)
+								EventDatepicker.eventsList.DataSource.CRUD = "delete";
+							else if ( $('#EventId').attr('value') != undefined && $('#EventId').attr('value') != '' )
+								EventDatepicker.eventsList.DataSource.CRUD = "update";
+							else
+								EventDatepicker.eventsList.DataSource.CRUD = "create";
 
-						if ($('#IsAnnual').attr('checked') == undefined)
-							$('#IsAnnual').attr('value', 0);
-						else
-							$('#IsAnnual').attr('value', 1);
+							if ($('#IsAnnual').attr('checked') == undefined)
+								$('#IsAnnual').attr('value', 0);
+							else
+								$('#IsAnnual').attr('value', 1);
 
-						if ($('#DeleteEvent').attr('checked') == undefined)
-							$('#DeleteEvent').attr('value', 0);
-						else
-							$('#DeleteEvent').attr('value', 1);
+							if ($('#DeleteEvent').attr('checked') == undefined)
+								$('#DeleteEvent').attr('value', 0);
+							else
+								$('#DeleteEvent').attr('value', 1);
 
-						EventDatepicker.eventsList.DataSource.FormData = { Data: $("#eventDialogForm").serialize(), DiaryId: $('#DiaryId').attr('value'), EventId: $('#EventId').attr('value'), EventName: $('#EventName').attr('value'), EventDesc: $('#EventDesc').attr('value'), EventDate: $('#EventDate').attr('value'), IsAnnual: $('#IsAnnual').attr('value'), DeleteEvent: $('#DeleteEvent').attr('value') };
+							EventDatepicker.eventsList.DataSource.FormData = { Data: $("#eventDialogForm").serialize(), DiaryId: $('#DiaryId').attr('value'), EventId: $('#EventId').attr('value'), EventName: $('#EventName').attr('value'), EventDesc: $('#EventDesc').attr('value'), EventDate: $('#EventDate').attr('value'), IsAnnual: $('#IsAnnual').attr('value'), DeleteEvent: $('#DeleteEvent').attr('value') };
+// console.log(EventDatepicker.eventsList.DataSource.FormData);		// check DATE in different browsers
 // update serialized data since: All "on" checkboxes may be successful. All "off" checkboxes may not
-						if ($('#IsAnnual').attr('checked') == undefined || $('#IsAnnual').attr('value') == 0)
-							EventDatepicker.eventsList.DataSource.FormData.Data+="&IsAnnual=0";
-						if ($('#DeleteEvent').attr('checked') == undefined || $('#DeleteEvent').attr('value') == 0)
-							EventDatepicker.eventsList.DataSource.FormData.Data+="&DeleteEvent=0";
+							if ($('#IsAnnual').attr('checked') == undefined || $('#IsAnnual').attr('value') == 0)
+								EventDatepicker.eventsList.DataSource.FormData.Data+="&IsAnnual=0";
+							if ($('#DeleteEvent').attr('checked') == undefined || $('#DeleteEvent').attr('value') == 0)
+								EventDatepicker.eventsList.DataSource.FormData.Data+="&DeleteEvent=0";
 
-						EventDatepicker.eventsList.Data[eventPos] = {};
-						EventDatepicker.eventsList.Data[eventPos].DiaryId 	  = $('#DiaryId').attr('value');
-						EventDatepicker.eventsList.Data[eventPos].EventId 	  = $('#EventId').attr('value');
-						EventDatepicker.eventsList.Data[eventPos].EventName   = $('#EventName').attr('value');
-						EventDatepicker.eventsList.Data[eventPos].EventDesc   = $('#EventDesc').attr('value');
-						var dtMediumDate = new Date($('#EventDate').attr('value') );
-						var mediumDate   = dtMediumDate.getDate().toString() + ' ' + monthNames[dtMediumDate.getMonth().toString()] + ' ' + dtMediumDate.getFullYear().toString();
-						EventDatepicker.eventsList.Data[eventPos].EventDate   = mediumDate;
-						EventDatepicker.eventsList.Data[eventPos].IsAnnual 	  = $('#IsAnnual').attr('value');
-						EventDatepicker.eventsList.Data[eventPos].DeleteEvent = $('#DeleteEvent').attr('value');
+							EventDatepicker.eventsList.Data[eventPos] = {};
+							EventDatepicker.eventsList.Data[eventPos].DiaryId 	  = $('#DiaryId').attr('value');
+							EventDatepicker.eventsList.Data[eventPos].EventId 	  = $('#EventId').attr('value');
+							EventDatepicker.eventsList.Data[eventPos].EventName   = $('#EventName').attr('value');
+							EventDatepicker.eventsList.Data[eventPos].EventDesc   = $('#EventDesc').attr('value');
+							var dtMediumDate = new Date($('#EventDate').attr('value') );
+							var mediumDate   = dtMediumDate.getDate().toString() + ' ' + monthNames[dtMediumDate.getMonth().toString()] + ' ' + dtMediumDate.getFullYear().toString();
+							EventDatepicker.eventsList.Data[eventPos].EventDate   = mediumDate;
+							EventDatepicker.eventsList.Data[eventPos].IsAnnual 	  = $('#IsAnnual').attr('value');
+							//EventDatepicker.eventsList.Data[eventPos].DeleteEvent = $('#DeleteEvent').attr('value');
 
-						var jqxhr = $.ajax({
-											async: 		true,
-											type: 		"POST",
-											url: 		"/eventdatepicker/server/data.php",
-											processData: true,
-//											dataType: 	"json",
-											data: 		EventDatepicker.eventsList.DataSource
-											});
-						jqxhr.done(function(data, textStatus, jqXHR) {
-								//console.log(textStatus); console.log(data);
-								window['DP_jQuery_' + dpuuid].datepicker._updateHTML(inst, day, month, year);
-								eventDialog.dialog('close');
-						});
+							var jqxhr = $.ajax({
+												async: 		true,
+												type: 		"POST",
+												url: 		"/eventdatepicker/server/data.php",
+												processData: true,
+	//											dataType: 	"json",
+												data: 		EventDatepicker.eventsList.DataSource
+												});
+							jqxhr.done(function(data, textStatus, jqXHR) { // console.log(textStatus); console.log(data);
+									window['DP_jQuery_' + dpuuid].datepicker._updateDOM(inst, day, month, year);
+									eventDialog.dialog('close');
+							});
+							jqxhr.fail(function(jqXHR, textStatus, errorThrown)  { // console.log(jqXHR); console.log(textStatus); console.log(errorThrown);
+									var serverErrors = jQuery.parseJSON(jqXHR.responseText);
+
+									// EventName
+									if (serverErrors.EventName == undefined) { $('#ErrorEventName').css('display','none'); }
+									else { $('#ErrorEventName').html(serverErrors.EventName); $('#ErrorEventName').css('display','block'); }
+									// EventDesc
+									if (serverErrors.EventDesc == undefined) { $('#ErrorEventDesc').css('display','none'); }
+									else { $('#ErrorEventDesc').html(serverErrors.EventDesc); $('#ErrorEventDesc').css('display','block'); }
+									// EventDate
+									if (serverErrors.EventDate == undefined) { $('#ErrorEventDate').css('display','none'); }
+									else { $('#ErrorEventDate').html(serverErrors.EventDate); $('#ErrorEventDate').css('display','block'); }
+
+							});
+						}
 					}
 				}
 			}
@@ -1679,7 +1702,7 @@ return;
 //		var EventDatepicker 		  	 = {};
 		EventDatepicker.eventText     	 = '';
 		EventDatepicker.contextMenu    	 = '';
-		EventDatepicker.eventDialog   	 = '<div id="eventDialog" style="display:none;"><form method="post" action="" name="eventDialogForm" id="eventDialogForm"><fieldset><input type="hidden" name="DiaryId" id="DiaryId" /><input type="hidden" name="EventId" id="EventId" /><label for="EventName">EventName</label><input type="text" name="EventName" id="EventName" /><label for="EventDesc">EventDesc</label><input type="text" name="EventDesc" id="EventDesc" value="" /><label for="EventDate">EventDate</label><input type="date" name="EventDate" id="EventDate" value="" /><br/><span name="IsAnnualSpan" id="IsAnnualSpan">Annual Event &#xa0; <input type="checkbox" name="IsAnnual" id="IsAnnual" /></span><br/><span name="DeleteEventSpan" id="DeleteEventSpan"><input type="checkbox" name="DeleteEvent" id="DeleteEvent" /> &#xa0; Delete this event</span></fieldset></form></div>';
+		EventDatepicker.eventDialog   	 = '<div id="eventDialog" style="display:none;"><form method="post" action="" name="eventDialogForm" id="eventDialogForm"><fieldset><input type="hidden" name="DiaryId" id="DiaryId" /><input type="hidden" name="EventId" id="EventId" /><label for="EventName">EventName</label><input type="text" name="EventName" id="EventName" /><span id="ErrorEventName" class="error" style="display:none;"></span><label for="EventDesc">EventDesc</label><input type="text" name="EventDesc" id="EventDesc" value="" /><span id="ErrorEventDesc" class="error" style="display:none;"></span><label for="EventDate">EventDate</label><input type="date" name="EventDate" id="EventDate" value="" /><span id="ErrorEventDate" class="error" style="display:none;"></span><br/><span name="IsAnnualSpan" id="IsAnnualSpan">Annual Event &#xa0; <input type="checkbox" name="IsAnnual" id="IsAnnual" /></span><br/><span name="DeleteEventSpan" id="DeleteEventSpan"><input type="checkbox" name="DeleteEvent" id="DeleteEvent" /> &#xa0; Delete this event</span></fieldset></form></div>';
 		EventDatepicker.messageDialog 	 = '<div id="messageDialog" style="display:none;">Set the datasource to change events!</div>';
 		EventDatepicker.isSetContextMenu = false;
 		EventDatepicker.eventsList    	 = this._get(inst, 'eventsList');
@@ -1863,8 +1886,8 @@ return;
 	},
 
 
-	/* Update the HTML for the current state of the date picker. */
-	_updateHTML: function(inst, day, month, year) {
+	/* Update the DOM for the current state of the date picker. */
+	_updateDOM: function(inst, day, month, year) {
 		var eventDay = new Date(EventDatepicker.eventsList.DataSource.FormData.EventDate).getDate();
 
 		// delete the event or change it to a different day
