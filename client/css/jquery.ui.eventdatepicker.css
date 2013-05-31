@@ -1,10 +1,9 @@
 /* Events
 ----------------------------------*/
 
-.ui-event 		{ display: block; text-indent: -99999px; overflow: hidden; background-repeat: no-repeat; }
+.ui-event 		{ display: inline; }
 .ui-event-bell  	{ color: #f00; }
-.ui-event-bell:before 	{ content: url(../images/bell/Bell_transparent_red_10.png); }
-
+.ui-event-bell:before 	{ content: url(../images/bell/Bell_transparent_red_10.png); margin-left: -10px; }  /* Adjust by image width */
 
 /* Dialog
 ----------------------------------*/
@@ -15,6 +14,7 @@
 
 /* Menu
 ----------------------------------*/
+
 #menu.ui-menu 	{ width: 150px; }
 #menu 		{ position:absolute; display:none; list-style-type: none; }
 #menu ul 	{ list-style-type: none; }
